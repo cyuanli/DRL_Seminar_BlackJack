@@ -5,7 +5,7 @@ This repository contains a Blackjack environment as coding challenge for the dee
 The challenge is setup in 4 difficulty levels:
 
 1. Get familiar with the frameworks and learn an easy version of Blackjack, where the dealer only has one card which is revield to you. That is, your algorithm should be able to learn to collect cards until the value of the dealers card is exceeded, without going above 21.
-2. Let your agent learn Blackjack (Dealer hits on 17, Dealer wins draws).
+2. Let your agent learn Blackjack (Dealer hits on 16, Dealer wins draws).
 3. Investigate, whether your agent is also able to learn Blackjack if the carde values are changed.
 4. We will provide a new version of the game shortly before the deadline to question your agents capabilities further.
 
