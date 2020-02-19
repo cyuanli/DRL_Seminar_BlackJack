@@ -85,5 +85,5 @@ dependencies:
     - werkzeug==0.16.0
     - wrapt==1.11.2
     - zipp==0.6.0
-prefix: /home/oli/anaconda3/envs/drl-seminar
+prefix: /home/cyl/anaconda3/envs/drl-seminar
 
