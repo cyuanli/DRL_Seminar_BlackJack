@@ -11,15 +11,15 @@ from tqdm import trange
 
 
 class QNetwork():
-    def __init__(self, state_dim):
+    def __init__(self, state_dim, action_space):
         self.model = tf.keras.Sequential([
             tf.keras.layers.Input(state_dim),
             tf.keras.layers.Dense(32, activation='relu'),
             tf.keras.layers.Dense(32, activation='relu'),
-            tf.keras.layers.Dense(2, activation='linear')
+            tf.keras.layers.Dense(action_space, activation='linear')
         ])
         self.loss = tf.keras.losses.MeanSquaredError()
-        self.optimizer = tf.keras.optimizers.SGD(learning_rate=0.1)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
 
     def predict(self, state):
         if state.ndim == 1:
@@ -92,7 +92,7 @@ class Agent():
         self.gamma = 1.
 
         self.env = env
-        self.q_network = QNetwork(env.state_dim)
+        self.q_network = QNetwork(env.state_dim, env.action_space)
         self.replay_buffer = ReplayBuffer()
 
     def get_action(self, state, explore=True):
@@ -147,11 +147,11 @@ if __name__ == "__main__":
         description='DQN for coding challenge of DRL seminar')
     parser.add_argument('--n_train', dest='n_train_episodes', default=20000,
                         type=int, help='number of episodes for training')
-    parser.add_argument('--batch_size', dest='n_batch_size', default=100,
+    parser.add_argument('--batch_size', dest='n_batch_size', default=200,
                         type=int, help='size of training batches')
     parser.add_argument('--train_interval', dest='t_train_interval', default=10,
                         type=int, help='interval between trainings in episodes')
-    parser.add_argument('--n_test', dest='n_test_episodes', default=2000,
+    parser.add_argument('--n_test', dest='n_test_episodes', default=10000,
                         type=int, help='number of episodes for testing')
     args = parser.parse_args()
     main(args.n_train_episodes, args.n_batch_size,
