@@ -4,6 +4,7 @@ import gym
 import numpy as np
 import random
 import tensorflow as tf
+import threading
 from tqdm import trange
 
 
@@ -14,8 +15,8 @@ class QNetwork():
     def __init__(self, state_dim, action_space):
         self.model = tf.keras.Sequential([
             tf.keras.layers.Input(state_dim),
-            tf.keras.layers.Dense(32, activation='relu'),
-            tf.keras.layers.Dense(32, activation='relu'),
+            tf.keras.layers.Dense(10, activation='relu'),
+            tf.keras.layers.Dense(10, activation='relu'),
             tf.keras.layers.Dense(action_space, activation='linear')
         ])
         self.loss = tf.keras.losses.MeanSquaredError()
@@ -86,9 +87,26 @@ class BlackjackEnv():
         return self._transform_state(state), reward, terminal
 
 
+class CartPoleEnv():
+    def __init__(self):
+        self.env = gym.make('CartPole-v0')
+        self.state_dim = 4
+        self.action_space = 2
+
+    def reset(self):
+        return self.env.reset()
+
+    def step(self, action):
+        state, reward, terminal, _ = self.env.step(action)
+        return state, reward, terminal
+
+    def render(self):
+        self.env.render()
+
+
 class Agent():
     def __init__(self, env):
-        self.epsilon = 0.2
+        self.epsilon = 0.05
         self.gamma = 1.
 
         self.env = env
@@ -108,6 +126,8 @@ class Agent():
 
             episode = []
             while not terminal:
+                if t % 100 == 0:
+                    self.env.render()
                 action = self.get_action(state)
                 state_next, reward, terminal = self.env.step(action)
                 episode.append(
@@ -119,25 +139,38 @@ class Agent():
                 batch = self.replay_buffer.sample(n_batch_size)
                 self.q_network.train(batch, self.gamma)
 
-    def test(self, n_episodes):
+    def test(self, n_episodes, n_threads=4):
         rewards = []
-        for _ in trange(n_episodes, desc='Testing', ncols=100):
-            state = self.env.reset()
+        workers = list()
+        for _ in range(n_threads):
+            worker = threading.Thread(
+                target=self.test_worker, args=(int(n_episodes / n_threads), rewards))
+            workers.append(worker)
+            worker.start()
+
+        for worker in workers:
+            worker.join()
+
+        print('Average reward: {}'.format(np.mean(rewards)))
+
+    def test_worker(self, n_thread_episodes, rewards):
+        env = CartPoleEnv()
+        for _ in trange(n_thread_episodes, desc=' Testing', ncols=100):
+            state = env.reset()
             terminal = False
             cummulative_reward = 0
 
             while not terminal:
                 action = self.get_action(state, explore=False)
-                state, reward, terminal = self.env.step(action)
+                state, reward, terminal = env.step(action)
                 cummulative_reward += reward
 
             rewards.append(cummulative_reward)
-        print('Average reward: {}'.format(np.mean(rewards)))
 
 
 def main(n_train_episodes, n_batch_size, t_train_interval, n_test_episodes):
-    blackjack_env = BlackjackEnv()
-    agent = Agent(blackjack_env)
+    cartpole_env = CartPoleEnv()
+    agent = Agent(cartpole_env)
     agent.train(n_train_episodes, n_batch_size, t_train_interval)
     agent.test(n_test_episodes)
 
