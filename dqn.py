@@ -1,5 +1,6 @@
 import argparse
 import Blackjack
+from datetime import datetime
 import gym
 import numpy as np
 import random
@@ -34,6 +35,7 @@ class QNetwork():
         self.model = QNetworkModel()
         self.loss = tf.keras.losses.MeanSquaredError()
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        self.timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
     def __call__(self, state):
         if state.ndim == 1:
@@ -60,6 +62,10 @@ class QNetwork():
             grads = tape.gradient(loss, self.model.trainable_variables)
             self.optimizer.apply_gradients(
                 zip(grads, self.model.trainable_variables))
+
+    def save(self):
+        self.model.save_weights(
+            'saved_models/dqn-{}.h5'.format(self.timestamp))
 
 
 class ReplayBuffer():
@@ -116,7 +122,7 @@ class Agent():
         return np.argmax(q_values[0])
 
     def train(self, n_episodes, n_batch_size, t_train_interval):
-        for t in trange(n_episodes, desc='Training', ncols=100):
+        for t in trange(n_episodes, desc='Training', ncols=80):
             state = self.env.reset()
             terminal = False
 
@@ -132,10 +138,11 @@ class Agent():
             if t % t_train_interval == 0 and len(self.replay_buffer) >= n_batch_size:
                 batch = self.replay_buffer.sample(n_batch_size)
                 self.q_network.train(batch, self.gamma)
+                self.q_network.save()
 
     def test(self, n_episodes):
         rewards = []
-        for _ in trange(n_episodes, desc='Testing', ncols=100):
+        for _ in trange(n_episodes, desc='Testing', ncols=80):
             state = self.env.reset()
             terminal = False
             cummulative_reward = 0
