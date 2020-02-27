@@ -26,7 +26,7 @@ class QNetwork():
         self.timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
     def save(self):
-        self.model.save('cartpole_dqn-{}.h5'.format(self.timestamp))
+        self.model.save('saved_models/cartpole_dqn-{}.h5'.format(self.timestamp))
 
     def predict(self, state):
         if state.ndim == 1:
