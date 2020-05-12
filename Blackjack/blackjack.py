@@ -21,7 +21,9 @@ class BlackjackEnv(gym.Env):
     def _init(self, one_card_dealer=False, card_values=None):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Tuple((spaces.MultiBinary(52), spaces.Discrete(52)))
-        self._card_values = card_values or np.asarray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10] * 4)
+        self._card_values = np.asarray(card_values)
+        if card_values is None:
+            self._card_values = np.asarray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10] * 4)
         assert len(self._card_values) == 52
         self._one_card_dealer = one_card_dealer
         self.seed()
