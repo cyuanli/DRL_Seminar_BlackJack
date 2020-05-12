@@ -1,6 +1,3 @@
-import argparse
-import Blackjack
-import gym
 import numpy as np
 import random
 import tensorflow as tf
@@ -67,37 +64,20 @@ class ReplayBuffer():
         return np.array(random.sample(self.buffer, n))
 
 
-class BlackjackEnv():
-    def __init__(self):
-        self.env = gym.make('Blackjack-v1')
-        self.state_dim = 104
-        self.action_space = 2
-
-    def _transform_state(self, state):
-        one_hot = [False for _ in range(52)]
-        one_hot[state[1]] = True
-        return np.concatenate([state[0], one_hot])
-
-    def reset(self):
-        return self._transform_state(self.env.reset())
-
-    def step(self, action):
-        state, reward, terminal, _ = self.env.step(action)
-        return self._transform_state(state), reward, terminal
-
-
-class Agent():
-    def __init__(self, env):
+class DqnAgent():
+    def __init__(self, env, state_dim, action_space):
+        self.state_dim = state_dim
+        self.action_space = action_space
         self.epsilon = 0.2
         self.gamma = 1.
 
         self.env = env
-        self.q_network = QNetwork(env.state_dim)
+        self.q_network = QNetwork(state_dim)
         self.replay_buffer = ReplayBuffer()
 
     def get_action(self, state, explore=True):
         if explore and np.random.rand() < self.epsilon:
-            return np.random.randint(self.env.action_space)
+            return np.random.randint(self.action_space)
         q_values = self.q_network.predict(state)
         return np.argmax(q_values[0])
 
@@ -132,27 +112,4 @@ class Agent():
                 cummulative_reward += reward
 
             rewards.append(cummulative_reward)
-        print('Average reward: {}'.format(np.mean(rewards)))
-
-
-def main(n_train_episodes, n_batch_size, t_train_interval, n_test_episodes):
-    blackjack_env = BlackjackEnv()
-    agent = Agent(blackjack_env)
-    agent.train(n_train_episodes, n_batch_size, t_train_interval)
-    agent.test(n_test_episodes)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='DQN for coding challenge of DRL seminar')
-    parser.add_argument('--n_train', dest='n_train_episodes', default=20000,
-                        type=int, help='number of episodes for training')
-    parser.add_argument('--batch_size', dest='n_batch_size', default=100,
-                        type=int, help='size of training batches')
-    parser.add_argument('--train_interval', dest='t_train_interval', default=10,
-                        type=int, help='interval between trainings in episodes')
-    parser.add_argument('--n_test', dest='n_test_episodes', default=2000,
-                        type=int, help='number of episodes for testing')
-    args = parser.parse_args()
-    main(args.n_train_episodes, args.n_batch_size,
-         args.t_train_interval, args.n_test_episodes)
+        return np.mean(rewards)
