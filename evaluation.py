@@ -27,5 +27,5 @@ for env_config in environment_configurations:
 print("DQN achieved the following win rates: {}".format(achieved_win_rates))
 
 # OUTPUT:
-# PPO achieved the following win rates:
-# [0.9949523275378576, 0.4225774225774226, 0.05228758169934641, 0.22347417840375586]
+# DQN achieved the following win rates:
+# [0.9977, 0.4078, 1.0, 0.4448]

@@ -11,12 +11,12 @@ class QNetwork():
     def __init__(self, state_dim):
         self.model = tf.keras.Sequential([
             tf.keras.layers.Input(state_dim),
-            tf.keras.layers.Dense(32, activation='relu'),
-            tf.keras.layers.Dense(32, activation='relu'),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dense(64, activation='relu'),
             tf.keras.layers.Dense(2, activation='linear')
         ])
         self.loss = tf.keras.losses.MeanSquaredError()
-        self.optimizer = tf.keras.optimizers.SGD(learning_rate=0.1)
+        self.optimizer = tf.keras.optimizers.SGD(learning_rate=0.2)
 
     def predict(self, state):
         if state.ndim == 1:
