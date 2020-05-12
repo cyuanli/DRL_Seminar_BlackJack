@@ -1,3 +1,30 @@
+# Submission of DRL Seminar '20 Coding Challenge
+
+This implementation of a DQN learner achieves `[0.9977, 0.4078, 1.0, 0.4448]` on the evaluation configurations in `evaluation.py`. To run it, make sure the conda environment is setup and activated as described below and run 
+```bash
+python evaluation.py
+```
+
+## DQN
+
+The DQN learner is described in the following sections. It consists of a Q-network, a Replay buffer, the agent and a wrapper-agent for the Blackjack environment.
+
+### Q-Network
+
+The Q-network consists of a simple DNN with 2 hidden layers with 64 nodes each and ReLU as activation function.
+
+### Replay Buffer
+
+The replay buffer keeps past experiences in a list of a maximum size. If maximum capacity is reached, the oldest experiences are removed.
+
+### DQN Agent
+
+The DQN agent consists of a Q-network and a replay buffer. It implements a `train` and a `test` method, the former acting on an epsilon-greedy policy to collect experiences for training, the latter acting on a greedy policy according to the Q-values from the Q-network. The epsilon value has been set to 0.2 and the discount factor to 1, as we do not want to discount future rewards.
+
+### Wrapper-Agent
+
+The wrapper-agent inherits from the DQN agent in order to enable the transformation of the state representation. It one-hot encodes the hand of the dealer, thus transforming the state into a single binary vector of size 104.
+
 # Deep Reinforcement Learning Seminar '20 Coding Challenge
 
 This repository contains a Blackjack environment as coding challenge for the deep reinforcement learning seminar 2020.
